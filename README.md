@@ -1,6 +1,6 @@
 # Face Recognition
 
-This project uses face recognition to identify faces in images. Below are the steps to set up and run the project.
+This project uses face recognition to identify faces in images, specifically using characters from the show "Stranger Things". This project falls under the category of Computer Vision.
 
 ## Setup Instructions
 
