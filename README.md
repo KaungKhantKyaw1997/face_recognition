@@ -48,5 +48,5 @@ Implemented for identifying characters in images, falling under Computer Vision.
 
 ## Additional Notes
 
-- It's recommended to use a virtual environment to avoid conflicts with system-wide packages.
-- Ensure your Python version is compatible with the packages used in this project.
+- It’s recommended to use a virtual environment to avoid conflicts with system-wide packages.
+- Ensure your Python version (3.11.0) is compatible with the packages used in this project.
