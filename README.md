@@ -1,7 +1,12 @@
 # Face Recognition
 
-Implemented a face recognition project to identify "Stranger Things" characters in images,
-falling under Computer Vision.
+Implemented for identifying characters in images, falling under Computer Vision.
+
+## Requirements
+
+1. Ensure you have Python version 3.11.0 installed.
+2. (Optional) Consider using `pyenv` for managing Python versions.
+3. Ensure you have `pip` for installing dependencies.
 
 ## Setup Instructions
 
@@ -15,42 +20,31 @@ falling under Computer Vision.
 2. **Create a virtual environment**:
 
    ```sh
-   python3 -m venv env
+   python -m venv .venv
    ```
 
 3. **Activate the virtual environment**:
 
    - On macOS and Linux:
      ```sh
-     source env/bin/activate
+     source .venv/bin/activate
      ```
    - On Windows:
      ```sh
-     .\env\Scripts\activate
+     ".\\.venv\\Scripts\\activate"
      ```
 
-4. **Install the required packages**:
+4. **Install required libraries**:
 
    ```sh
-   pip install face-recognition
-   pip install setuptools
-   pip install opencv-python
+   pip install -r requirements.txt
    ```
 
 5. **Run the script**:
+
    ```sh
    python main.py
    ```
-
-## Troubleshooting
-
-If you encounter issues with missing packages or modules, ensure that all dependencies are installed correctly within the virtual environment.
-
-- **ModuleNotFoundError: No module named 'face_recognition'**:
-  Make sure you have run `pip install face-recognition` inside the activated virtual environment.
-
-- **ModuleNotFoundError: No module named 'cv2'**:
-  Make sure you have run `pip install opencv-python` inside the activated virtual environment.
 
 ## Additional Notes
 

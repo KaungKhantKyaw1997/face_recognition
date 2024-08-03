@@ -1,0 +1,4 @@
+face-recognition
+setuptools
+opencv-python
+flask

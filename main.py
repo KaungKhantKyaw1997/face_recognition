@@ -1,10 +1,15 @@
+from flask import Flask, request, jsonify, url_for
 import face_recognition
 import cv2
 import numpy as np
 import os
+import tempfile
+from werkzeug.utils import secure_filename
+import shutil
+
+app = Flask(__name__)
 
 def draw_rounded_rectangle(image, top_left, bottom_right, color, thickness, radius):
-    """Draw a rounded rectangle."""
     x1, y1 = top_left
     x2, y2 = bottom_right
     cv2.line(image, (x1 + radius, y1), (x2 - radius, y1), color, thickness)
@@ -17,7 +22,6 @@ def draw_rounded_rectangle(image, top_left, bottom_right, color, thickness, radi
     cv2.ellipse(image, (x2 - radius, y2 - radius), (radius, radius), 0, 0, 90, color, thickness)
 
 def draw_label(image, text, top_left, bottom_right, font, font_scale, text_color, bg_color, thickness, radius):
-    """Draw a label with text."""
     overlay = image.copy()
     draw_rounded_rectangle(overlay, top_left, bottom_right, bg_color, thickness, radius)
     alpha = 0.75
@@ -27,91 +31,89 @@ def draw_label(image, text, top_left, bottom_right, font, font_scale, text_color
     text_y = top_left[1] + (bottom_right[1] - top_left[1] + text_size[1]) // 2
     cv2.putText(image, text, (text_x, text_y), font, font_scale, text_color, thickness, lineType=cv2.LINE_AA)
 
-# Paths to the images
-unknown_image_path = "assets/images/S3.jpeg"
-known_image_paths = ["assets/images/Mike.jpeg", "assets/images/Dustin.jpeg", "assets/images/Eleven.jpeg", "assets/images/Lucas.jpeg", "assets/images/Max.jpeg", "assets/images/Will.jpeg"]
+@app.route('/process_image', methods=['POST'])
+def process_image():
+    data = request.get_json()
+    unknown_faces_dir = data.get('unknown_faces_dir')
+    known_faces_dir = data.get('known_faces_dir')
 
-# Load the unknown image
-try:
-    unknown_image = face_recognition.load_image_file(unknown_image_path)
-    print(f"Successfully loaded unknown image from {unknown_image_path}")
-except Exception as e:
-    print(f"Failed to load unknown image: {e}")
-    exit()
+    if not unknown_faces_dir or not known_faces_dir:
+        return jsonify({"error": "Both 'unknown_faces_dir' and 'known_faces_dir' are required."}), 400
 
-# Find all the faces and face encodings in the unknown image
-face_locations = face_recognition.face_locations(unknown_image)
-face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
+    # Delete the 'static' directory if it exists
+    static_dir = os.path.join(os.getcwd(), 'static')
+    if os.path.exists(static_dir):
+        shutil.rmtree(static_dir)
 
-print(f"Found {len(face_encodings)} face(s) in the unknown image.")
+    # Recreate the 'static' directory
+    os.makedirs(static_dir)
 
-if not face_encodings:
-    print("No faces found in the unknown image.")
-    exit()
+    unknown_faces = [os.path.join(unknown_faces_dir, f) for f in os.listdir(unknown_faces_dir) if os.path.isfile(os.path.join(unknown_faces_dir, f))]
+    known_faces = [os.path.join(known_faces_dir, f) for f in os.listdir(known_faces_dir) if os.path.isfile(os.path.join(known_faces_dir, f))]
 
-# Load known images and get face encodings
-known_face_encodings = []
-known_face_names = []
+    if not unknown_faces:
+        return jsonify({"error": "No group photos found in the specified directory."}), 400
 
-for known_image_path in known_image_paths:
-    try:
-        known_image = face_recognition.load_image_file(known_image_path)
-        print(f"Successfully loaded known image from {known_image_path}")
-    except Exception as e:
-        print(f"Failed to load known image: {e}")
-        continue
-    
-    # Get the face encodings
-    known_encodings = face_recognition.face_encodings(known_image)
-    if len(known_encodings) == 0:
-        print(f"No faces found in the known image {known_image_path}.")
-        continue
-    
-    known_face_encodings.append(known_encodings[0])
-    
-    # Extract the name from the file path
-    name = os.path.splitext(os.path.basename(known_image_path))[0]
-    known_face_names.append(name)
+    if not known_faces:
+        return jsonify({"error": "No known faces found in the specified directory."}), 400
 
-print("Known face encodings loaded successfully.")
+    known_face_encodings = []
+    known_face_names = []
 
-# Initialize some variables
-face_names = []
+    for known_face in known_faces:
+        try:
+            known_image = face_recognition.load_image_file(known_face)
+        except Exception as e:
+            continue
 
-# Set a lower threshold for face distance
-threshold = 0.6  # Adjusted threshold for better results
+        known_encodings = face_recognition.face_encodings(known_image)
+        if len(known_encodings) == 0:
+            continue
 
-# Process each face found in the unknown image
-for face_encoding in face_encodings:
-    # Use the known face with the smallest distance to the new face
-    face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-    best_match_index = np.argmin(face_distances)
-    name = "Unknown"
+        known_face_encodings.append(known_encodings[0])
+        name = os.path.splitext(os.path.basename(known_face))[0]
+        known_face_names.append(name)
 
-    # Print the face distances for debugging
-    print(f"Face distances: {face_distances}")
+    response_links = []
+    threshold = 0.6
 
-    # Check if the best match is within the threshold
-    if face_distances[best_match_index] < threshold:
-        name = known_face_names[best_match_index]
+    for unknown_face in unknown_faces:
+        try:
+            unknown_image = face_recognition.load_image_file(unknown_face)
+        except Exception as e:
+            continue
 
-    face_names.append(name)
-    print(f"Match found: {name} with distance: {face_distances[best_match_index]}")
+        face_locations = face_recognition.face_locations(unknown_image)
+        face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
 
-# Display the results
-for (top, right, bottom, left), name in zip(face_locations, face_names):
-    # Draw a rounded rectangle around the face
-    draw_rounded_rectangle(unknown_image, (left, top), (right, bottom), (0, 0, 255), 2, 10)
+        if not face_encodings:
+            continue
 
-    # Draw a label with a name below the face
-    label_top_left = (left, bottom + 5)
-    label_bottom_right = (right, bottom + 35)
-    draw_label(unknown_image, name, label_top_left, label_bottom_right, cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), (0, 0, 255), 2, 5)
+        face_names = []
 
-# Convert the image from RGB (face_recognition uses RGB) to BGR (OpenCV uses BGR)
-bgr_image = cv2.cvtColor(unknown_image, cv2.COLOR_RGB2BGR)
+        for face_encoding in face_encodings:
+            face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+            best_match_index = np.argmin(face_distances)
+            name = "Unknown"
 
-# Display the resulting image
-cv2.imshow('Image', bgr_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+            if face_distances[best_match_index] < threshold:
+                name = known_face_names[best_match_index]
+
+            face_names.append(name)
+
+        for (top, right, bottom, left), name in zip(face_locations, face_names):
+            draw_rounded_rectangle(unknown_image, (left, top), (right, bottom), (0, 0, 255), 2, 10)
+            label_top_left = (left, bottom + 5)
+            label_bottom_right = (right, bottom + 35)
+            draw_label(unknown_image, name, label_top_left, label_bottom_right, cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), (0, 0, 255), 2, 5)
+
+        bgr_image = cv2.cvtColor(unknown_image, cv2.COLOR_RGB2BGR)
+
+        temp_filename = os.path.join(static_dir, secure_filename(next(tempfile._get_candidate_names()) + ".jpg"))
+        cv2.imwrite(temp_filename, bgr_image)
+        response_links.append(url_for('static', filename=os.path.basename(temp_filename), _external=True))
+
+    return jsonify({"image_links": response_links})
+
+if __name__ == '__main__':
+    app.run(debug=True)
