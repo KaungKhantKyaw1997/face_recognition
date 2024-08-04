@@ -1,5 +1,4 @@
-face-recognition==1.3.0
+face-recognition
 setuptools
 opencv-python
 flask
-werkzeug
