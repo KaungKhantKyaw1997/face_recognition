@@ -92,6 +92,10 @@ def process_image():
         face_names = []
 
         for face_encoding in face_encodings:
+            if not known_face_encodings:
+                face_names.append("Unknown")
+                continue
+
             face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
             best_match_index = np.argmin(face_distances)
             name = "Unknown"
