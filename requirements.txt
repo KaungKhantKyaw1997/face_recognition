@@ -2,3 +2,6 @@ face-recognition
 setuptools
 opencv-python
 flask
+werkzeug
+dlib
+cmake
