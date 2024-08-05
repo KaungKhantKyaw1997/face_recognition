@@ -10,13 +10,13 @@ Implemented for identifying characters in images, falling under Computer Vision.
 
 ## Setup Instructions
 
-1. **Clone the repository to your local machine:**:
+1. **Clone the repository to your local machine**:
 
    ```sh
    git clone https://github.com/KaungKhantKyaw1997/face_recognition.git
    ```
 
-2. **Navigate to the project directory:**:
+2. **Navigate to the project directory**:
 
    ```sh
    cd face_recognition
