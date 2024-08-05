@@ -10,20 +10,26 @@ Implemented for identifying characters in images, falling under Computer Vision.
 
 ## Setup Instructions
 
-1. **Clone the repository**:
+1. **Clone the repository to your local machine:**:
 
    ```sh
    git clone https://github.com/KaungKhantKyaw1997/face_recognition.git
    cd face_recognition
    ```
 
-2. **Create a virtual environment**:
+2. **Navigate to the project directory:**:
+
+   ```sh
+   cd face_recognition
+   ```
+
+3. **Create a virtual environment**:
 
    ```sh
    python -m venv .venv
    ```
 
-3. **Activate the virtual environment**:
+4. **Activate the virtual environment**:
 
    - On macOS and Linux:
      ```sh
@@ -34,13 +40,13 @@ Implemented for identifying characters in images, falling under Computer Vision.
      ".\\.venv\\Scripts\\activate"
      ```
 
-4. **Install required libraries**:
+5. **Install required libraries**:
 
    ```sh
    pip install -r requirements.txt
    ```
 
-5. **Run the script**:
+6. **Run the script**:
 
    ```sh
    python main.py
