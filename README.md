@@ -14,7 +14,6 @@ Implemented for identifying characters in images, falling under Computer Vision.
 
    ```sh
    git clone https://github.com/KaungKhantKyaw1997/face_recognition.git
-   cd face_recognition
    ```
 
 2. **Navigate to the project directory:**:
