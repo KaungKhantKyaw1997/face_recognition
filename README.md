@@ -10,25 +10,25 @@ Implemented for identifying characters in images, falling under Computer Vision.
 
 ## Setup Instructions
 
-1. **Clone the repository to your local machine**:
+1. **Clone the repository to your local machine:**
 
    ```sh
    git clone https://github.com/KaungKhantKyaw1997/face_recognition.git
    ```
 
-2. **Navigate to the project directory**:
+2. **Navigate to the project directory:**
 
    ```sh
    cd face_recognition
    ```
 
-3. **Create a virtual environment**:
+3. **Create a virtual environment:**
 
    ```sh
    python -m venv .venv
    ```
 
-4. **Activate the virtual environment**:
+4. **Activate the virtual environment:**
 
    - On macOS and Linux:
      ```sh
@@ -39,13 +39,13 @@ Implemented for identifying characters in images, falling under Computer Vision.
      ".\\.venv\\Scripts\\activate"
      ```
 
-5. **Install required libraries**:
+5. **Install required libraries:**
 
    ```sh
    pip install -r requirements.txt
    ```
 
-6. **Run the script**:
+6. **Run the script:**
 
    ```sh
    python main.py
@@ -55,3 +55,22 @@ Implemented for identifying characters in images, falling under Computer Vision.
 
 - It’s recommended to use a virtual environment to avoid conflicts with system-wide packages.
 - Ensure your Python version (3.11.0) is compatible with the packages used in this project.
+
+## API Example
+
+To process an image, follow these steps:
+
+1. **Send a POST request to the following endpoint:**
+
+   ```sh
+   POST http://127.0.0.1:5001/process_image
+   ```
+
+2. **Request Body Example:**
+
+   ```json
+   {
+     "unknown_faces_dir": "/path/to/unknown_faces",
+     "known_faces_dir": "/path/to/known_faces"
+   }
+   ```
